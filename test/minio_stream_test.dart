@@ -7,7 +7,7 @@ import 'helpers.dart';
 void main() {
   group('MinioByteStream', () {
     final bucketName = uniqueName();
-    final objectName = 'content-length-test';
+    const objectName = 'content-length-test';
     final testData = Uint8List.fromList([1, 2, 3, 4, 5]);
 
     setUpAll(() async {

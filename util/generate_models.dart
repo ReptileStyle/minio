@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:html/dom.dart' show Element;
@@ -26,8 +27,8 @@ ${models.join('\n')}
 const baseUrl = 'https://docs.aws.amazon.com/AmazonS3/latest/API';
 
 Future<List<String>> getAllModelUrls() async {
-  print('Getting Index.');
-  final url = '$baseUrl/API_Types_Amazon_Simple_Storage_Service.html';
+  log('Getting Index.');
+  const url = '$baseUrl/API_Types_Amazon_Simple_Storage_Service.html';
   final page = await http.get(Uri.parse(url));
   final document = parse(page.body);
   final urls = document.querySelectorAll('.listitem a');
@@ -38,7 +39,7 @@ Future<List<String>> getAllModelUrls() async {
 }
 
 Future<String> getModel(String url) async {
-  print('Getting: $url.');
+  log('Getting: $url.');
   final page = await http.get(Uri.parse(url));
   final document = parse(page.body);
 
@@ -49,7 +50,7 @@ Future<String> getModel(String url) async {
       .replaceAll(RegExp(r'\s+'), ' ');
 
   final fields = <FieldSpec>[];
-  for (var dt in document.querySelectorAll('dt')) {
+  for (final dt in document.querySelectorAll('dt')) {
     final name = dt.text.trim();
     final spec = parseField(name, dt.nextElementSibling!);
     fields.add(spec);
@@ -60,75 +61,77 @@ Future<String> getModel(String url) async {
   buffer.writeln('class $name {');
 
   buffer.writeln('  $name(');
-  for (var field in fields) {
+  for (final field in fields) {
     buffer.writeln('      this.${field.dartName},');
   }
   buffer.writeln('  );');
-  buffer.writeln('');
+  buffer.writeln();
 
   buffer.writeln('  $name.fromXml(XmlElement xml) {');
-  for (var field in fields) {
+  for (final field in fields) {
     switch (field.type.name) {
       case 'String':
         buffer.writeln(
-            "      ${field.dartName} = getProp(xml, '${field.name}')?.text;");
-        break;
+          "      ${field.dartName} = getProp(xml, '${field.name}')?.text;",
+        );
       case 'int':
         buffer.writeln(
-            "      ${field.dartName} = int.tryParse(getProp(xml, '${field.name}')?.text);");
-        break;
+          "      ${field.dartName} = int.tryParse(getProp(xml, '${field.name}')?.text);",
+        );
       case 'bool':
         buffer.writeln(
-            "      ${field.dartName} = getProp(xml, '${field.name}')?.text?.toUpperCase() == 'TRUE';");
-        break;
+          "      ${field.dartName} = getProp(xml, '${field.name}')?.text?.toUpperCase() == 'TRUE';",
+        );
       case 'DateTime':
         buffer.writeln(
-            "      ${field.dartName} = DateTime.parse(getProp(xml, '${field.name}')?.text);");
-        break;
+          "      ${field.dartName} = DateTime.parse(getProp(xml, '${field.name}')?.text);",
+        );
       default:
         buffer.writeln(
-            "      ${field.dartName} = ${field.type.name}.fromXml(getProp(xml, '${field.name}'));");
+          "      ${field.dartName} = ${field.type.name}.fromXml(getProp(xml, '${field.name}'));",
+        );
     }
   }
   buffer.writeln('  }');
-  buffer.writeln('');
+  buffer.writeln();
 
   buffer.writeln('  XmlNode toXml() {');
   buffer.writeln('    final builder = XmlBuilder();');
   buffer.writeln("    builder.element('$name', nest: () {");
-  for (var field in fields) {
+  for (final field in fields) {
     switch (field.type.name) {
       case 'String':
         buffer.writeln(
-            "      builder.element('${field.name}', nest: ${field.dartName});");
-        break;
+          "      builder.element('${field.name}', nest: ${field.dartName});",
+        );
       case 'int':
         buffer.writeln(
-            "      builder.element('${field.name}', nest: ${field.dartName}.toString());");
-        break;
+          "      builder.element('${field.name}', nest: ${field.dartName}.toString());",
+        );
       case 'bool':
         buffer.writeln(
-            "      builder.element('${field.name}', nest: ${field.dartName} ? 'TRUE' : 'FALSE');");
+          "      builder.element('${field.name}', nest: ${field.dartName} ? 'TRUE' : 'FALSE');",
+        );
 
-        break;
       case 'DateTime':
         buffer.writeln(
-            "      builder.element('${field.name}', nest: ${field.dartName}.toIso8601String());");
-        break;
+          "      builder.element('${field.name}', nest: ${field.dartName}.toIso8601String());",
+        );
       default:
         buffer.writeln(
-            "      builder.element('${field.name}', nest: ${field.dartName}.toXml());");
+          "      builder.element('${field.name}', nest: ${field.dartName}.toXml());",
+        );
     }
   }
   buffer.writeln('    });');
   buffer.writeln('    return builder.buildDocument();');
   buffer.writeln('  }');
-  buffer.writeln('');
+  buffer.writeln();
 
-  for (var field in fields) {
+  for (final field in fields) {
     buffer.writeln('  /// ${field.description}');
     buffer.writeln('  ${field.type.name} ${field.dartName};');
-    buffer.writeln('');
+    buffer.writeln();
   }
   buffer.writeln('}');
 

@@ -17,12 +17,12 @@ extension MinioX on Minio {
     MinioInvalidBucketNameError.check(bucket);
     MinioInvalidObjectNameError.check(object);
 
-    metadata ??= {};
-    metadata = insertContentType(metadata, filePath);
-    metadata = prependXAMZMeta(metadata);
+    var meta = metadata ?? {};
+    meta = insertContentType(meta, filePath);
+    meta = prependXAMZMeta(meta);
 
     final file = File(filePath);
-    final stat = await file.stat();
+    final stat = file.statSync();
     if (stat.size > maxObjectSize) {
       throw MinioError(
         '$filePath size : ${stat.size}, max allowed size : 5TB',
@@ -34,7 +34,7 @@ extension MinioX on Minio {
       object,
       file.openRead().cast<Uint8List>(),
       size: stat.size,
-      metadata: metadata,
+      metadata: meta,
     );
   }
 
@@ -56,23 +56,23 @@ extension MinioX on Minio {
     IOSink partFileStream;
     var offset = 0;
 
-    final rename = () {
-      partFile.rename(filePath);
-    };
+    Future<void> rename() async {
+      await partFile.rename(filePath);
+    }
 
-    if (await partFile.exists()) {
-      final localStat = await partFile.stat();
+    if (partFile.existsSync()) {
+      final localStat = partFile.statSync();
       if (stat.size == localStat.size) return rename();
       offset = localStat.size;
       partFileStream = partFile.openWrite(mode: FileMode.append);
     } else {
-      partFileStream = partFile.openWrite(mode: FileMode.write);
+      partFileStream = partFile.openWrite();
     }
 
     final dataStream = await getPartialObject(bucket, object, offset);
     await dataStream.pipe(partFileStream);
 
-    final localStat = await partFile.stat();
+    final localStat = partFile.statSync();
     if (localStat.size != stat.size) {
       throw MinioError('Size mismatch between downloaded file and the object');
     }
