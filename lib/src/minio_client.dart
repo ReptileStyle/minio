@@ -142,7 +142,7 @@ class MinioClient {
   }) async {
     String? address;
     if (bucket != null) {
-      address ??= await minio.getBucketRegion(bucket);
+      address = region ?? await minio.getBucketRegion(bucket);
     }
 
     address ??= 'us-east-1';
@@ -242,7 +242,7 @@ class MinioClient {
     Map<String, String>? headers,
     void Function(int)? onProgress,
   ) {
-    final url = getRequestUrl(bucket, object, resource, queries);
+    final url = getRequestUrl(region, bucket, object, resource, queries);
     final request = MinioRequest(method, url, onProgress: onProgress);
     request.headers['host'] = url.authority;
 
@@ -254,6 +254,7 @@ class MinioClient {
   }
 
   Uri getRequestUrl(
+    String region,
     String? bucket,
     String? object,
     String? resource,
@@ -263,7 +264,7 @@ class MinioClient {
     var path = '/';
 
     if (isAmazonEndpoint(host)) {
-      host = getS3Endpoint(minio.region!);
+      host = getS3Endpoint(minio.region ?? region);
     }
 
     if (isVirtualHostStyle(host, minio.useSSL, bucket)) {
