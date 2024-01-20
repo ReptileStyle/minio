@@ -4,14 +4,13 @@ import 'package:minio/io.dart';
 import 'package:minio/minio.dart';
 
 void main() async {
-  final minio = Minio(
+  Minio.init(
     endPoint: 's3.amazonaws.com',
     accessKey: '',
     secretKey: '',
     region: 'us-east-1',
   );
 
-  final url = await minio.fPutObject('homing-pigeon-dev', 'test.png', 'example/custed.png');
-
+  final url = await Minio.shared.fPutObject('', 'test.png', 'example/custed.png');
   log('url: $url');
 }

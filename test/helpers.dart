@@ -16,7 +16,7 @@ Minio getMinioClient({
   String region = 'us-east-1',
   bool enableTrace = false,
 }) =>
-    Minio(
+    Minio.init(
       endPoint: endpoint,
       port: port,
       useSSL: useSSL,

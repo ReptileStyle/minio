@@ -15,31 +15,62 @@ import 'package:xml/xml.dart' as xml;
 import 'package:xml/xml.dart' show XmlElement;
 
 class Minio {
-  /// Initializes a new client object.
-  Minio({
+  factory Minio() {
+    return _instance!;
+  }
+
+  static Minio shared = Minio();
+
+  Minio._({
     required this.endPoint,
     required this.accessKey,
     required this.secretKey,
-    int? port,
+    required this.port,
     this.useSSL = true,
     this.sessionToken,
     this.region,
     this.enableTrace = false,
-  }) : port = port ?? implyPort(useSSL) {
+  }) {
+    _client = MinioClient(this);
+  }
+
+  static Minio init({
+    required String endPoint,
+    required String accessKey,
+    required String secretKey,
+    int? port,
+    bool useSSL = true,
+    String? sessionToken,
+    String? region,
+    bool enableTrace = false,
+  }) {
+    final portParam = port ?? implyPort(useSSL);
     if (!isValidEndpoint(endPoint)) {
       throw MinioInvalidEndpointError(
         'End point $endPoint is not a valid domain or ip address',
       );
     }
 
-    if (!isValidPort(this.port)) {
+    if (!isValidPort(portParam)) {
       throw MinioInvalidPortError(
-        'Invalid port number ${this.port}',
+        'Invalid port number $portParam',
       );
     }
 
-    _client = MinioClient(this);
+    _instance = Minio._(
+      endPoint: endPoint,
+      accessKey: accessKey,
+      secretKey: secretKey,
+      port: portParam,
+      useSSL: useSSL,
+      sessionToken: sessionToken,
+      region: region,
+      enableTrace: enableTrace,
+    );
+    return _instance!;
   }
+
+  static Minio? _instance;
 
   /// default part size for multipart uploads.
   final partSize = 64 * 1024 * 1024;
