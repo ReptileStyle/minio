@@ -1,21 +1,4 @@
-<p align="center">
-  <h1 align="center">MinIO Dart</h1>
-</p>
-
-This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to access any Amazon S3 compatible object storage server.
-
-<p align="center">
-  <a href="https://github.com/xtyxtyx/minio-dart/actions/workflows/dart.yml">
-    <img src="https://github.com/xtyxtyx/minio-dart/workflows/Dart/badge.svg">
-  </a>
-  <a href="https://pub.dev/packages/minio">
-    <img src="https://img.shields.io/pub/v/minio">
-  </a>
-  <a href="https://ko-fi.com/F1F61K6BL">
-    <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-F16061?style=flat&logo=buy-me-a-coffee&logoColor=white&labelColor=555555">
-  </a>
-</p>
-
+# minio
 
 ## API
 
@@ -35,32 +18,44 @@ This is the _unofficial_ MinIO Dart Client SDK that provides simple APIs to acce
 
 ## Usage
 
-### Initialize MinIO Client
+## Usage
+
+```yaml
+dependencies:
+  minio:
+    git:
+    url: https://github.com/FlutterFleet/minio
+    ref: v0.0.2+1
+```
+
+## Initialize
 
 **MinIO**
 
 ```dart
-final minio = Minio(
+Minio.init(
   endPoint: 'play.min.io',
   accessKey: 'Q3AM3UQ867SPQQA43P2F',
   secretKey: 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
+  region: 'us-east-1',
 );
 ```
 
 **AWS S3**
 
 ```dart
-final minio = Minio(
+Minio.init(
   endPoint: 's3.amazonaws.com',
   accessKey: 'YOUR-ACCESSKEYID',
   secretKey: 'YOUR-SECRETACCESSKEY',
+  region: 'us-east-1',
 );
 ```
 
 **Filebase**
 
 ```dart
-final minio = Minio(
+Minio.init(
   endPoint: 's3.filebase.com',
   accessKey: 'YOUR-ACCESSKEYID',
   secretKey: 'YOUR-SECRETACCESSKEY',
@@ -74,13 +69,13 @@ import 'package:minio/io.dart';
 import 'package:minio/minio.dart';
 
 void main() async {
-  final minio = Minio(
+  Minio.init(
     endPoint: 'play.min.io',
     accessKey: 'Q3AM3UQ867SPQQA43P2F',
     secretKey: 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
   );
 
-  await minio.fPutObject('mybucket', 'myobject', 'path/to/file');
+  await Minio.shared.fPutObject('mybucket', 'myobject', 'path/to/file');
 }
 ```
 
@@ -93,13 +88,13 @@ For complete example, see: [example]
 import 'package:minio/minio.dart';
 
 void main() async {
-  final minio = Minio(
+  Minio.init(
     endPoint: 'play.min.io',
     accessKey: 'Q3AM3UQ867SPQQA43P2F',
     secretKey: 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
   );
 
-  await minio.putObject(
+  await Minio.shared.putObject(
     'mybucket', 
     'myobject', 
     Stream<Uint8List>.value(Uint8List(1024)),
@@ -115,13 +110,13 @@ import 'dart:io';
 import 'package:minio/minio.dart';
 
 void main() async {
-  final minio = Minio(
+  Minio.init(
     endPoint: 's3.amazonaws.com',
     accessKey: 'YOUR-ACCESSKEYID',
     secretKey: 'YOUR-SECRETACCESSKEY',
   );
 
-  final stream = await minio.getObject('BUCKET-NAME', 'OBJECT-NAME');
+  final stream = await Minio.shared.getObject('BUCKET-NAME', 'OBJECT-NAME');
 
   // Get object length
   print(stream.contentLength);
