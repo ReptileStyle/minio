@@ -18,7 +18,7 @@ bool isValidBucketName(String bucket) {
     return false;
   }
 
-  if (RegExp(r'^[a-z0-9][a-z0-9.-]+[a-z0-9]$').hasMatch(bucket)) {
+  if (RegExp(r'^[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]$').hasMatch(bucket)) {
     return true;
   }
 
