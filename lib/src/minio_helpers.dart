@@ -7,22 +7,11 @@ import 'package:minio/src/minio_models_generated.dart';
 import 'package:xml/xml.dart' as xml;
 
 bool isValidBucketName(String bucket) {
-  if (bucket.length < 3 || bucket.length > 63) {
-    return false;
-  }
-  if (bucket.contains('..')) {
+  if (bucket.contains('/') || bucket.startsWith('arn:')) { // compatibility with typescript amazon s3 sdk
     return false;
   }
 
-  if (RegExp(r'[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+').hasMatch(bucket)) {
-    return false;
-  }
-
-  if (RegExp(r'^[a-zA-Z0-9][a-zA-Z\s0-9.-]+[a-zA-Z0-9]$').hasMatch(bucket)) {
-    return true;
-  }
-
-  return false;
+  return true;
 }
 
 bool isValidObjectName(String objectName) {
